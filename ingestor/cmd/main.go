@@ -60,10 +60,13 @@ func main() {
 				continue
 			}
 
-			fmt.Printf("Candlestick updated: Symbol=%s, Timestamp=%s, Open=%.2f, High=%.2f, "+
-				"Low=%.2f, Close=%.2f, Volume=%.2f\n",
-				candle.Symbol, candle.Timestamp.Format(time.RFC3339), candle.Open, candle.High, candle.Low,
-				candle.Close, candle.Volume)
+			if cfg.App.Debug {
+				fmt.Printf("Candlestick updated: Symbol=%s, Timestamp=%s, Open=%.2f, High=%.2f, "+
+					"Low=%.2f, Close=%.2f, Volume=%.2f\n",
+					candle.Symbol, candle.Timestamp.Format(time.RFC3339), candle.Open, candle.High, candle.Low,
+					candle.Close, candle.Volume)
+			}
+
 		case <-interrupt:
 			log.Println("interrupt, shutting down...")
 			cancel()
