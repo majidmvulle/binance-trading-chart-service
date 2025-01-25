@@ -2,13 +2,14 @@ package aggregator
 
 import (
 	"github.com/majidmvulle/binance-trading-chart-service/ingestor/internal/services/aggregator"
+	aggregator2 "github.com/majidmvulle/binance-trading-chart-service/ingestor/pkg/api/aggregator"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"time"
 )
 
 type Server struct {
-	UnimplementedAggregatorServiceServer
+	aggregator2.UnimplementedAggregatorServiceServer
 	candlestickChan chan *aggregator.Candlestick
 }
 
@@ -18,11 +19,11 @@ func NewServer(candlestickChan chan *aggregator.Candlestick) *Server {
 	}
 }
 
-func (s *Server) StreamCandlesticks(_ *StreamRequest,
-	stream AggregatorService_StreamCandlesticksServer) error {
-	log.Println("Client connected for candlestick stream")
+func (s *Server) StreamCandlesticks(_ *aggregator2.StreamRequest,
+	stream aggregator2.AggregatorService_StreamCandlesticksServer) error {
+	log.Println("client connected for candlestick stream")
 	for candle := range s.candlestickChan {
-		resp := &StreamResponse{
+		resp := &aggregator2.StreamResponse{
 			Symbol:    candle.Symbol,
 			Open:      candle.Open,
 			High:      candle.High,
@@ -33,7 +34,7 @@ func (s *Server) StreamCandlesticks(_ *StreamRequest,
 		}
 
 		if err := stream.Send(resp); err != nil {
-			log.Printf("Error sending candlestick to stream: %v", err)
+			log.Printf("error sending candlestick to stream: %v", err)
 
 			return err
 		}

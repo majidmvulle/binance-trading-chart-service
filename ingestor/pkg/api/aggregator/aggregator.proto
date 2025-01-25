@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package grpc;
+package aggregator;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "pkg/api/aggregator";
+option go_package = "./aggregator";
 
 service AggregatorService {
   rpc StreamCandlesticks (StreamRequest) returns (stream StreamResponse);

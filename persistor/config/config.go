@@ -8,11 +8,11 @@ var cfg *AppConfig
 
 type AppConfig struct {
 	App struct {
-		Name     string
-		Debug    bool
-		Env      string
-		GrpcPort uint16
+		Name  string
+		Debug bool
+		Env   string
 	}
+	ServerAddress string
 }
 
 func Config() *AppConfig {
@@ -37,5 +37,6 @@ func loadConfig() {
 	cfg.App.Name = viper.GetString("APP_NAME")
 	cfg.App.Debug = viper.GetBool("APP_DEBUG")
 	cfg.App.Env = viper.GetString("APP_ENV")
-	cfg.App.GrpcPort = uint16(viper.GetInt("APP_GRPC_PORT"))
+
+	cfg.ServerAddress = viper.GetString("SERVER_ADDRESS")
 }

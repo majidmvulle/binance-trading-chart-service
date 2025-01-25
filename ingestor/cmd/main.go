@@ -58,6 +58,7 @@ func main() {
 	defer func() {
 		grpcServer.GracefulStop()
 	}()
+
 	log.Println("listening for aggTrades...")
 
 	for {

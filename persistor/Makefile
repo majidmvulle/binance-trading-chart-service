@@ -20,14 +20,16 @@ install/tools:
 .PHONY: gen/pb
 gen/pb:
 	@echo Starting generate pb
-	@protoc --proto_path=./ \
-             --go_out=paths=source_relative:./ \
-             --go-grpc_out=paths=source_relative,require_unimplemented_servers=false:./ \
-             ./pkg/api/*/*.proto
+	@mkdir -p ./internal/clients
+	@protoc \
+	  --proto_path=../ingestor/pkg/api/aggregator \
+	  --go_out=internal/clients \
+	  --go-grpc_out=internal/clients \
+	  ../ingestor/pkg/api/aggregator/aggregator.proto
 	@echo Successfully generated proto
 
 	@echo Starting inject tags
-	@find ./pkg/api -name "*.pb.go" -exec protoc-go-inject-tag -input="{}" \;
+	@find ./internal/clients -name "*.pb.go" -exec protoc-go-inject-tag -input="{}" \;
 	@echo Successfully injected tags
 
 ## test: runs all tests
@@ -81,7 +83,7 @@ lint/go:
 .PHONY: lint/proto
 lint/proto:
 	@echo "Running protobuf linters"
-	@protolint lint ./pkg/api/*/*.proto
+	@protolint lint ./internal/clients/*/*.proto
 
 ## run: runs the server
 .PHONY: run
