@@ -13,11 +13,6 @@ type AppConfig struct {
 		Env      string
 		GrpcPort uint16
 	}
-
-	Binance struct {
-		WebsocketBaseURL string
-		Symbols          []string
-	}
 }
 
 func Config() *AppConfig {
@@ -43,8 +38,4 @@ func loadConfig() {
 	cfg.App.Debug = viper.GetBool("APP_DEBUG")
 	cfg.App.Env = viper.GetString("APP_ENV")
 	cfg.App.GrpcPort = uint16(viper.GetInt("APP_GRPC_PORT"))
-
-	// Binance.
-	cfg.Binance.WebsocketBaseURL = viper.GetString("BINANCE_WEBSOCKET_BASE_URL")
-	cfg.Binance.Symbols = viper.GetStringSlice("BINANCE_SYMBOLS")
 }

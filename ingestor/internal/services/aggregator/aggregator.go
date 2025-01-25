@@ -18,12 +18,14 @@ type Candlestick struct {
 }
 
 type Aggregator struct {
-	candlesticks map[string]*Candlestick
+	candlesticks    map[string]*Candlestick
+	CandlestickChan chan *Candlestick
 }
 
 func NewAggregator() *Aggregator {
 	return &Aggregator{
-		candlesticks: make(map[string]*Candlestick),
+		candlesticks:    make(map[string]*Candlestick),
+		CandlestickChan: make(chan *Candlestick),
 	}
 }
 
@@ -60,6 +62,10 @@ func (a *Aggregator) AggregateTrade(trade binance.TradeData) (*Candlestick, erro
 		candle.Low = minFloat64(candle.Low, priceFloat)
 		candle.Close = priceFloat
 		candle.Volume += quantityFloat
+	}
+
+	if candle != nil {
+		a.CandlestickChan <- candle
 	}
 
 	return candle, nil

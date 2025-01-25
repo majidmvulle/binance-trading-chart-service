@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/majidmvulle/binance-trading-chart-service/ingestor/config"
@@ -22,6 +23,7 @@ func main() {
 	})
 
 	aggregatorSvc := aggregator.NewAggregator()
+	grpcServer := NewGrpcServer(WithCandlestickChan(aggregatorSvc.CandlestickChan))
 
 	if err := client.Connect(); err != nil {
 		log.Fatalf("failed to connect to Binance WebSocket: %v", err)
@@ -46,8 +48,16 @@ func main() {
 	}()
 
 	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt, os.Kill)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
+	go func() {
+		if err := grpcServer.StartGRPCServer(cfg.App.GrpcPort); err != nil {
+			log.Fatalf("failed to start gRPC server: %v", err)
+		}
+	}()
+	defer func() {
+		grpcServer.GracefulStop()
+	}()
 	log.Println("listening for aggTrades...")
 
 	for {
