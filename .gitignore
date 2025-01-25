@@ -27,3 +27,5 @@ go.work.sum
 # protobuf
 *pb.go
 *pb.gw.go
+
+.idea
