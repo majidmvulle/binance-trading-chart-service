@@ -2,14 +2,13 @@ package aggregator
 
 import (
 	"github.com/majidmvulle/binance-trading-chart-service/ingestor/internal/services/aggregator"
-	aggregatorproto "github.com/majidmvulle/binance-trading-chart-service/ingestor/pkg/api/aggregator"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"time"
 )
 
 type Server struct {
-	aggregatorproto.UnimplementedAggregatorServiceServer
+	UnimplementedAggregatorServiceServer
 	candlestickChan chan *aggregator.Candlestick
 }
 
@@ -19,11 +18,11 @@ func NewServer(candlestickChan chan *aggregator.Candlestick) *Server {
 	}
 }
 
-func (s *Server) ListCandlesticks(req *aggregatorproto.StreamRequest,
-	stream aggregatorproto.AggregatorService_StreamCandlesticksServer) error {
+func (s *Server) StreamCandlesticks(_ *StreamRequest,
+	stream AggregatorService_StreamCandlesticksServer) error {
 	log.Println("Client connected for candlestick stream")
 	for candle := range s.candlestickChan {
-		resp := &aggregatorproto.StreamResponse{
+		resp := &StreamResponse{
 			Symbol:    candle.Symbol,
 			Open:      candle.Open,
 			High:      candle.High,
@@ -43,5 +42,5 @@ func (s *Server) ListCandlesticks(req *aggregatorproto.StreamRequest,
 			candle.Timestamp.Format(time.RFC3339), candle.Close)
 	}
 	log.Println("candlestick stream channel closed, ending gRPC stream")
-	return nil // Stream closed gracefully
+	return nil
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	aggregatorgrpc "github.com/majidmvulle/binance-trading-chart-service/ingestor/internal/grpc/aggregator"
 	"github.com/majidmvulle/binance-trading-chart-service/ingestor/internal/services/aggregator"
 	aggregatorproto "github.com/majidmvulle/binance-trading-chart-service/ingestor/pkg/api/aggregator"
 	"google.golang.org/grpc"
@@ -30,6 +29,7 @@ func NewGrpcServer(opts ...Option) *Server {
 
 	return &Server{
 		grpcServer: grpc.NewServer(),
+		options:    &opt,
 	}
 }
 
@@ -42,16 +42,16 @@ func WithCandlestickChan(candlestickChan chan *aggregator.Candlestick) Option {
 func (s *Server) StartGRPCServer(port uint16) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
-		return fmt.Errorf("failed to listen: %w", err)
+		return fmt.Errorf("failed to serve: %w", err)
 	}
 
 	grpcServer := grpc.NewServer()
 
 	if s.options.candlestickChan != nil {
-		aggregatorproto.RegisterAggregatorServiceServer(grpcServer, aggregatorgrpc.NewServer(s.options.candlestickChan))
+		aggregatorproto.RegisterAggregatorServiceServer(grpcServer, aggregatorproto.NewServer(s.options.candlestickChan))
 	}
 
-	log.Printf("gRPC server listening on port :%d", port)
+	log.Printf("gRPC serving on port :%d", port)
 
 	go func() {
 		if err := s.grpcServer.Serve(lis); err != nil {
