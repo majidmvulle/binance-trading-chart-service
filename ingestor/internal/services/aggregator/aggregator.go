@@ -2,11 +2,14 @@ package aggregator
 
 import (
 	"fmt"
-	"github.com/majidmvulle/binance-trading-chart-service/ingestor/internal/clients/binance"
+	"log"
 	"strconv"
 	"time"
+
+	"github.com/majidmvulle/binance-trading-chart-service/ingestor/internal/clients/binance"
 )
 
+// Candlestick represents a 1-minute OHLCV candlestick
 type Candlestick struct {
 	Symbol    string    `json:"symbol"`
 	Open      float64   `json:"open"`
@@ -17,18 +20,23 @@ type Candlestick struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// Aggregator manages the aggregation of trade data into candlesticks
 type Aggregator struct {
-	candlesticks    map[string]*Candlestick
+	candlesticks    map[string]map[string]*Candlestick
 	CandlestickChan chan *Candlestick
+	lastMinute      map[string]time.Time
 }
 
+// NewAggregator creates a new Aggregator instance
 func NewAggregator() *Aggregator {
 	return &Aggregator{
-		candlesticks:    make(map[string]*Candlestick),
+		candlesticks:    make(map[string]map[string]*Candlestick),
 		CandlestickChan: make(chan *Candlestick),
+		lastMinute:      make(map[string]time.Time),
 	}
 }
 
+// AggregateTrade processes a TradeData and updates/creates a candlestick
 func (a *Aggregator) AggregateTrade(trade binance.TradeData) (*Candlestick, error) {
 	priceFloat, err := strconv.ParseFloat(trade.Price, 64)
 	if err != nil {
@@ -42,9 +50,32 @@ func (a *Aggregator) AggregateTrade(trade binance.TradeData) (*Candlestick, erro
 	tradeTime := time.UnixMilli(trade.TradeTime).UTC()
 	minuteStart := tradeTime.Truncate(time.Minute)
 
-	candlestickKey := fmt.Sprintf("%s-%s", trade.Symbol, minuteStart.Format(time.RFC3339))
+	lastMinuteForSymbol := a.lastMinute[trade.Symbol]
 
-	candle, exists := a.candlesticks[candlestickKey]
+	if !minuteStart.Equal(lastMinuteForSymbol) && !lastMinuteForSymbol.IsZero() {
+		prevCandleKey := fmt.Sprintf("%s-%s", trade.Symbol, lastMinuteForSymbol.Format(time.RFC3339))
+		symbolCandlesticks := a.candlesticks[trade.Symbol]
+		completedCandle, ok := symbolCandlesticks[prevCandleKey]
+		if ok {
+			a.CandlestickChan <- completedCandle
+			log.Printf("Completed Candlestick for %s-%s, Close=%.2f, Volume=%.2f",
+				completedCandle.Symbol, completedCandle.Timestamp.Format(time.RFC3339), completedCandle.Close,
+				completedCandle.Volume)
+
+			delete(symbolCandlesticks, prevCandleKey)
+		}
+	}
+
+	a.lastMinute[trade.Symbol] = minuteStart
+
+	symbolCandlesticksMap := a.candlesticks[trade.Symbol]
+	if symbolCandlesticksMap == nil {
+		symbolCandlesticksMap = make(map[string]*Candlestick)
+		a.candlesticks[trade.Symbol] = symbolCandlesticksMap
+	}
+
+	candlestickKey := fmt.Sprintf("%s-%s", trade.Symbol, minuteStart.Format(time.RFC3339))
+	candle, exists := symbolCandlesticksMap[candlestickKey]
 	if !exists {
 		candle = &Candlestick{
 			Symbol:    trade.Symbol,
@@ -55,17 +86,13 @@ func (a *Aggregator) AggregateTrade(trade binance.TradeData) (*Candlestick, erro
 			Volume:    0.0,
 			Timestamp: minuteStart,
 		}
-
-		a.candlesticks[candlestickKey] = candle
+		symbolCandlesticksMap[candlestickKey] = candle
+		candle.Volume += quantityFloat
 	} else {
 		candle.High = maxFloat64(candle.High, priceFloat)
 		candle.Low = minFloat64(candle.Low, priceFloat)
 		candle.Close = priceFloat
 		candle.Volume += quantityFloat
-	}
-
-	if candle != nil {
-		a.CandlestickChan <- candle
 	}
 
 	return candle, nil

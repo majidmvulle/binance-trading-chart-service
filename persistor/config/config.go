@@ -13,6 +13,10 @@ type AppConfig struct {
 		Env   string
 	}
 	ServerAddress string
+	Database      struct {
+		WriteDSN string
+		ReadDSN  string
+	}
 }
 
 func Config() *AppConfig {
@@ -38,5 +42,10 @@ func loadConfig() {
 	cfg.App.Debug = viper.GetBool("APP_DEBUG")
 	cfg.App.Env = viper.GetString("APP_ENV")
 
+	// Grpc Server.
 	cfg.ServerAddress = viper.GetString("SERVER_ADDRESS")
+
+	// Database.
+	cfg.Database.WriteDSN = viper.GetString("DB_WRITE_DSN")
+	cfg.Database.ReadDSN = viper.GetString("DB_READ_DSN")
 }
