@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/majidmvulle/binance-trading-chart-service/ingestor/internal/clients/binance"
-	"github.com/majidmvulle/binance-trading-chart-service/ingestor/internal/services/aggregator"
 	"log"
 	"os"
 	"os/signal"
@@ -12,16 +10,17 @@ import (
 	"time"
 
 	"github.com/majidmvulle/binance-trading-chart-service/ingestor/config"
+	"github.com/majidmvulle/binance-trading-chart-service/ingestor/internal/clients/binance"
+	"github.com/majidmvulle/binance-trading-chart-service/ingestor/internal/services/aggregator"
 )
 
+//nolint:funlen
 func main() {
 	cfg := config.Config()
-
 	client := binance.NewClient(&binance.Config{
 		WebsocketBaseURL: cfg.Binance.WebsocketBaseURL,
 		Symbols:          cfg.Binance.Symbols,
 	})
-
 	aggregatorSvc := aggregator.NewAggregator()
 	grpcServer := NewGrpcServer(WithCandlestickChan(aggregatorSvc.CandlestickChan))
 
@@ -37,6 +36,7 @@ func main() {
 	}(client)
 
 	tradeChan := make(chan binance.TradeData)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -55,6 +55,7 @@ func main() {
 			log.Fatalf("failed to start gRPC server: %v", err)
 		}
 	}()
+
 	defer func() {
 		grpcServer.GracefulStop()
 	}()
@@ -72,6 +73,7 @@ func main() {
 			}
 
 			if cfg.App.Debug {
+				//nolint:forbidigo
 				fmt.Printf("Candlestick updated: Symbol=%s, Timestamp=%s, Open=%.2f, High=%.2f, "+
 					"Low=%.2f, Close=%.2f, Volume=%.2f\n",
 					candle.Symbol, candle.Timestamp.Format(time.RFC3339), candle.Open, candle.High, candle.Low,
@@ -82,9 +84,11 @@ func main() {
 			log.Println("interrupt, shutting down...")
 			cancel()
 			time.Sleep(time.Second)
+
 			return
 		case <-ctx.Done():
 			log.Println("context done, exiting...")
+
 			return
 		}
 	}

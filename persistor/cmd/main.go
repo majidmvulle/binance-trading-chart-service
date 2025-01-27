@@ -2,14 +2,17 @@ package main
 
 import (
 	"context"
+	"log"
+	"time"
+
 	"github.com/majidmvulle/binance-trading-chart-service/persistor/config"
 	"github.com/majidmvulle/binance-trading-chart-service/persistor/internal/db"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
-	"time"
 )
+
+const minutesToRun = 10
 
 func main() {
 	cfg := config.Config()
@@ -29,11 +32,11 @@ func main() {
 	defer func(conn *grpc.ClientConn) {
 		err := conn.Close()
 		if err != nil {
-
+			log.Fatalf("could not close grpc connection: %v", err)
 		}
 	}(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), minutesToRun*time.Minute)
 	defer cancel()
 
 	errGrp := errgroup.Group{}

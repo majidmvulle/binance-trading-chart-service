@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+
 	aggregatorpb "github.com/majidmvulle/binance-trading-chart-service/persistor/internal/clients/aggregator"
 	aggtraderepo "github.com/majidmvulle/binance-trading-chart-service/persistor/internal/repository/aggtrade"
 	aggtradesvc "github.com/majidmvulle/binance-trading-chart-service/persistor/internal/service/aggtrade"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
-	"log"
 )
 
 func RegisterAggregatorClient(ctx context.Context, conn *grpc.ClientConn, db *gorm.DB) error {
@@ -30,7 +31,7 @@ func RegisterAggregatorClient(ctx context.Context, conn *grpc.ClientConn, db *go
 	log.Println("connected to gRPC server, listening from aggregator service...")
 
 	if err := errGrp.Wait(); err != nil {
-		return fmt.Errorf("aggregator client is failing: %v", err)
+		return fmt.Errorf("aggregator client is failing: %w", err)
 	}
 
 	return nil

@@ -1,9 +1,7 @@
 name: Lint & Test Golang Code
 
 on:
-  pull_request:
-    branches:
-      - main
+  push:
     paths:
       - '*-go/**.go'
       - '*-go/go.mod'

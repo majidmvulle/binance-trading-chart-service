@@ -1,6 +1,4 @@
-ifeq ($(shell test -f .env && echo -n yes),yes)
-	include .env
-endif
+sinclude .env
 
 .PHONY: help
 help:

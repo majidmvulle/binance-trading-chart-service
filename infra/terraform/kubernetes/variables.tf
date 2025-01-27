@@ -36,6 +36,12 @@ variable "binance_symbols" {
   default     = "BTCUSDT ETHUSDT PEPEUSDT"
 }
 
+variable "binance_ws_base_url" {
+  type        = string
+  description = "Binance Websocket base URL"
+  default     = "wss://stream.binance.com:9443"
+}
+
 variable "app_grpc_port" {
   type        = string
   description = "GRPC port"

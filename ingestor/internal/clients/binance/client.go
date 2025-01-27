@@ -102,6 +102,7 @@ func (c *Client) ReadAggregatedTicks(ctx context.Context, tradeChan chan<- Trade
 		select {
 		case <-ctx.Done():
 			log.Println("context cancelled, closing websocket")
+
 			return ctx.Err()
 		default:
 			_, message, err := c.conn.ReadMessage()
@@ -115,6 +116,7 @@ func (c *Client) ReadAggregatedTicks(ctx context.Context, tradeChan chan<- Trade
 
 			if err := json.Unmarshal(message, &aggTrade); err != nil {
 				log.Printf("error unmarshalling tick data: %v, message: %s", err, string(message))
+
 				continue
 			}
 
@@ -127,5 +129,6 @@ func (c *Client) Close() error {
 	if c.conn != nil {
 		return c.conn.Close()
 	}
+
 	return nil
 }

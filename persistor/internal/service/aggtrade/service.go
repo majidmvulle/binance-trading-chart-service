@@ -3,13 +3,12 @@ package aggtrade
 import (
 	"context"
 	"fmt"
+	"log"
+
 	aggregatorpb "github.com/majidmvulle/binance-trading-chart-service/persistor/internal/clients/aggregator"
 	"github.com/majidmvulle/binance-trading-chart-service/persistor/internal/models"
 	"google.golang.org/grpc"
-	"log"
 )
-
-//go:generate mockery --name=aggTradeRepo --exported --output=./mocks --filename=aggtrade_repository_mock.go
 
 type aggTradeRepo interface {
 	SaveTick(ctx context.Context, tick models.AggTradeTick) error
@@ -30,7 +29,7 @@ func (s *service) HandleStream(ctx context.Context,
 	for {
 		resp, err := stream.Recv()
 		if err != nil {
-			return fmt.Errorf("error receiving from stream: %v", err)
+			return fmt.Errorf("error receiving from stream: %w", err)
 		}
 
 		if err := s.aggTradeRepo.SaveTick(ctx, models.AggTradeTick{

@@ -16,7 +16,7 @@ provider "kubernetes" {
 
 # --- Ingestor Service Deployment ---
 resource "kubernetes_config_map" "ingestor_config_map" {
-  provider   = kubernetes
+  provider = kubernetes
   metadata {
     name      = "ingestor-config"
     namespace = "default"
@@ -26,14 +26,14 @@ resource "kubernetes_config_map" "ingestor_config_map" {
     app_grpc_port : var.app_grpc_port
     app_env : var.app_env
     app_debug : var.app_debug
-    binance_websocket_base_url : "wss://stream.binance.com:9443"
+    binance_websocket_base_url : var.binance_ws_base_url
     binance_symbols : var.binance_symbols
   }
 }
 
 resource "kubernetes_manifest" "ingestor_deployment" {
-  provider   = kubernetes
-  manifest   = yamldecode(file("./../../k8s/ingestor/ingestor-deployment.yaml"))
+  provider = kubernetes
+  manifest = yamldecode(file("./../../k8s/ingestor/ingestor-deployment.yaml"))
 }
 
 resource "kubernetes_manifest" "ingestor_service" {
@@ -43,8 +43,8 @@ resource "kubernetes_manifest" "ingestor_service" {
 }
 
 resource "kubernetes_manifest" "ingestor_allow_egress_internet" {
-  provider = kubernetes
-  manifest = yamldecode(file("./../../k8s/ingestor/ingestor-egress-internet-access.yaml"))
+  provider   = kubernetes
+  manifest   = yamldecode(file("./../../k8s/ingestor/ingestor-egress-internet-access.yaml"))
   depends_on = [kubernetes_manifest.ingestor_service]
 }
 
@@ -68,7 +68,7 @@ resource "kubernetes_secret" "persistor_secrets" {
 }
 
 resource "kubernetes_config_map" "persistor_config_map" {
-  provider   = kubernetes
+  provider = kubernetes
   metadata {
     name      = "persistor-config"
     namespace = "default"
