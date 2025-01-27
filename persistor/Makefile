@@ -87,4 +87,20 @@ lint/proto:
 .PHONY: run
 run:
 	@trap 'kill 0' EXIT; \
-	go run ./cmd/server || true
+	go run ./cmd || true
+
+## gen: runs golang's generate
+.PHONY: gen
+gen:
+	@go mod tidy
+	@go generate ./...
+
+## docker/build: builds the docker image
+.PHONY: docker/build
+docker/build:
+	@docker buildx build --load --platform linux/arm64 --tag ghcr.io/majidmvulle/binance-trading-chart-service/persistor:latest .
+
+## docker/push: pushes the docker image
+.PHONY: docker/push
+docker/push:
+	@docker push ghcr.io/majidmvulle/binance-trading-chart-service/persistor:latest

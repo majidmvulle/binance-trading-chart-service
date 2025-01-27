@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -52,20 +51,6 @@ type DB struct {
 	options *options
 }
 
-// WithReadConfig sets the read db.
-func WithReadConfig(dsn DSN) Option {
-	return func(o *options) {
-		o.readDSN = buildDSN(dsn)
-	}
-}
-
-// WithWriteConfig sets the write db.
-func WithWriteConfig(dsn DSN) Option {
-	return func(o *options) {
-		o.writeDSN = buildDSN(dsn)
-	}
-}
-
 // WithReadDSN sets the read db.
 func WithReadDSN(dsn string) Option {
 	return func(o *options) {
@@ -77,34 +62,6 @@ func WithReadDSN(dsn string) Option {
 func WithWriteDSN(dsn string) Option {
 	return func(o *options) {
 		o.writeDSN = dsn
-	}
-}
-
-// WithMaxIdleConn sets the max idle connections.
-func WithMaxIdleConn(value int) Option {
-	return func(o *options) {
-		o.maxIdleConn = value
-	}
-}
-
-// WithMaxOpenConn sets the max life .
-func WithMaxOpenConn(value int) Option {
-	return func(o *options) {
-		o.maxOpenConn = value
-	}
-}
-
-// WithConnMaxLifetime sets the max life for connection.
-func WithConnMaxLifetime(t time.Duration) Option {
-	return func(o *options) {
-		o.connMaxLifetime = t
-	}
-}
-
-// WithGormLogLevel sets the gorm log level.
-func WithGormLogLevel(level logger.LogLevel) Option {
-	return func(o *options) {
-		o.logLevel = level
 	}
 }
 
@@ -220,16 +177,4 @@ func configure(db *gorm.DB, opts options) error {
 	sqlDB.SetConnMaxLifetime(opts.connMaxLifetime)
 
 	return nil
-}
-
-func buildDSN(dsn DSN) string {
-	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",
-		dsn.Host,
-		dsn.Username,
-		dsn.Password,
-		dsn.Name,
-		dsn.Port,
-		dsn.SslMode,
-		dsn.Timezone,
-	)
 }

@@ -1,0 +1,2 @@
+db_write_dsn                = "<base64-encoded-db-connection-string>"
+db_read_dsn                 = "<base64-encoded-db-connection-string>"

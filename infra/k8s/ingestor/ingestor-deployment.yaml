@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingestor-deployment
+  labels:
+    app: ingestor
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingestor
+  template:
+    metadata:
+      labels:
+        app: ingestor
+    spec:
+      containers:
+      - name: ingestor
+        image: ghcr.io/majidmvulle/binance-trading-chart-service/ingestor:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 50051
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        env:
+        - name: APP_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: ingestor-config
+              key: app_name
+        - name: APP_GRPC_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: ingestor-config
+              key: app_grpc_port
+        - name: BINANCE_WEBSOCKET_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ingestor-config
+              key: binance_websocket_base_url
+        - name: BINANCE_SYMBOLS
+          valueFrom:
+            configMapKeyRef:
+              name: ingestor-config
+              key: binance_symbols
+        - name: APP_DEBUG
+          valueFrom:
+            configMapKeyRef:
+              name: ingestor-config
+              key: app_debug

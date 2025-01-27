@@ -9,6 +9,8 @@ import (
 	"log"
 )
 
+//go:generate mockery --name=aggTradeRepo --exported --output=./mocks --filename=aggtrade_repository_mock.go
+
 type aggTradeRepo interface {
 	SaveTick(ctx context.Context, tick models.AggTradeTick) error
 }

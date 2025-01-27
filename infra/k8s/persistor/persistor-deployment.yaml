@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: persistor-deployment
+  labels:
+    app: persistor
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: persistor
+  template:
+    metadata:
+      labels:
+        app: persistor
+    spec:
+      containers:
+      - name: persistor
+        image: ghcr.io/majidmvulle/binance-trading-chart-service/persistor:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        env:
+        - name: APP_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: persistor-config
+              key: app_name
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: persistor-config
+              key: app_env
+        - name: APP_DEBUG
+          valueFrom:
+            configMapKeyRef:
+              name: persistor-config
+              key: app_env
+        - name: SERVER_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: persistor-config
+              key: server_address
+        - name: DB_WRITE_DSN
+          valueFrom:
+            secretKeyRef:
+              name: persistor-secrets
+              key: db_write_dsn
+        - name: DB_READ_DSN
+          valueFrom:
+            secretKeyRef:
+              name: persistor-secrets
+              key: db_read_dsn
+
