@@ -1,2 +1,7 @@
 db_write_dsn                = "<base64-encoded-db-connection-string>"
 db_read_dsn                 = "<base64-encoded-db-connection-string>"
+
+k8s_host                    = "<k8s-host>"
+k8s_client_certificate      = "<base64-k8s-client-certificate>"
+k8s_client_key              = "<base64-k8s-client-key>"
+k8s_cluster_ca_certificate  = "<base64-k8s-cluster-ca-certificate>"

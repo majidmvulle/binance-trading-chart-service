@@ -30,6 +30,8 @@ go.work.sum
 
 .idea
 
+.DS_Store
+
 # Local .terraform directories
 **/.terraform/*
 

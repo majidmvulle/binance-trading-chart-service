@@ -1,21 +1,21 @@
 variable "k8s_host" {
   type        = string
-  description = "k8s host server"
+  description = "K8s host server"
 }
 
 variable "k8s_client_certificate" {
   type        = string
-  description = "Base64Encoded k8s client certificate for Kubernetes API"
+  description = "K8s client certificate for Kubernetes API"
 }
 
 variable "k8s_client_key" {
   type        = string
-  description = "Base64Encoded k8s client client key for Kubernetes API"
+  description = "K8s client key for Kubernetes API"
 }
 
 variable "k8s_cluster_ca_certificate" {
   type        = string
-  description = "Base64Encoded k8s cluster client ca certificate for Kubernetes API"
+  description = "K8s cluster client ca certificate for Kubernetes API"
 }
 
 variable "db_write_dsn" {
